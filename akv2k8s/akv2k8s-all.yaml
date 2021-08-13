@@ -1,0 +1,1105 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: akv2k8s
+
+---
+
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.5.0
+  creationTimestamp: null
+  name: azurekeyvaultsecrets.spv.no
+spec:
+  group: spv.no
+  names:
+    categories:
+    - all
+    kind: AzureKeyVaultSecret
+    listKind: AzureKeyVaultSecretList
+    plural: azurekeyvaultsecrets
+    shortNames:
+    - akvs
+    singular: azurekeyvaultsecret
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Which Azure Key Vault this resource is asosiated with
+      jsonPath: .spec.vault.name
+      name: Vault
+      type: string
+    - description: Which Azure Key Vault object this resource is asosiated with
+      jsonPath: .spec.vault.object.name
+      name: Vault Object
+      type: string
+    - description: Which Kubernetes Secret this resource is synched with, if any
+      jsonPath: .status.secretName
+      name: Secret Name
+      type: string
+    - description: When this resource was last synched with Azure Key Vault
+      jsonPath: .status.lastAzureUpdate
+      name: Synched
+      type: date
+    - description: Time since this resource was created
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: AzureKeyVaultSecret is a specification for a AzureKeyVaultSecret resource
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AzureKeyVaultSecretSpec is the spec for a AzureKeyVaultSecret resource
+            properties:
+              output:
+                description: AzureKeyVaultOutput defines output sources, currently only support Secret
+                properties:
+                  secret:
+                    description: AzureKeyVaultOutputSecret has information needed to output a secret from Azure Key Vault to Kubertnetes as a Secret resource
+                    properties:
+                      chainOrder:
+                        description: By setting chainOrder to ensureserverfirst the server certificate will be moved first in the chain
+                        enum:
+                        - ensureserverfirst
+                        type: string
+                      dataKey:
+                        description: The key to use in Kubernetes secret when setting the value from Azure Keyv Vault object data
+                        type: string
+                      name:
+                        description: Name for Kubernetes secret
+                        type: string
+                      type:
+                        description: Type of Secret in Kubernetes
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  transform:
+                    items:
+                      type: string
+                    type: array
+                type: object
+              vault:
+                description: AzureKeyVault contains information needed to get the Azure Key Vault secret from Azure Key Vault
+                properties:
+                  name:
+                    description: Name of the Azure Key Vault
+                    type: string
+                  object:
+                    description: AzureKeyVaultObject has information about the Azure Key Vault object to get from Azure Key Vault
+                    properties:
+                      contentType:
+                        description: AzureKeyVaultObjectContentType defines what content type a secret contains, only used when type is multi-key-value-secret
+                        enum:
+                        - application/x-json
+                        - application/x-yaml
+                        type: string
+                      name:
+                        description: The object name in Azure Key Vault
+                        type: string
+                      type:
+                        description: AzureKeyVaultObjectType defines which Object type to get from Azure Key Vault
+                        enum:
+                        - secret
+                        - certificate
+                        - key
+                        - multi-key-value-secret
+                        type: string
+                      version:
+                        description: The object version in Azure Key Vault
+                        type: string
+                    required:
+                    - name
+                    - type
+                    type: object
+                required:
+                - name
+                - object
+                type: object
+            required:
+            - vault
+            type: object
+          status:
+            description: AzureKeyVaultSecretStatus is the status for a AzureKeyVaultSecret resource
+            properties:
+              lastAzureUpdate:
+                format: date-time
+                type: string
+              secretHash:
+                type: string
+              secretName:
+                type: string
+            required:
+            - secretHash
+            - secretName
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: false
+    subresources:
+      status: {}
+  - additionalPrinterColumns:
+    - description: Which Azure Key Vault this resource is asosiated with
+      jsonPath: .spec.vault.name
+      name: Vault
+      type: string
+    - description: Which Azure Key Vault object this resource is asosiated with
+      jsonPath: .spec.vault.object.name
+      name: Vault Object
+      type: string
+    - description: Which Kubernetes Secret this resource is synched with, if any
+      jsonPath: .status.secretName
+      name: Output Object
+      type: string
+    - description: When this resource was last synched with Azure Key Vault
+      jsonPath: .status.lastAzureUpdate
+      name: Synched
+      type: date
+    - description: Time since this resource was created
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: AzureKeyVaultSecret is a specification for a AzureKeyVaultSecret resource
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AzureKeyVaultSecretSpec is the spec for a AzureKeyVaultSecret resource
+            properties:
+              output:
+                description: AzureKeyVaultOutput defines output sources, currently only support Secret
+                properties:
+                  secret:
+                    description: AzureKeyVaultOutputSecret has information needed to output a secret from Azure Key Vault to Kubertnetes as a Secret resource
+                    properties:
+                      dataKey:
+                        description: The key to use in Kubernetes secret when setting the value from Azure Keyv Vault object data
+                        type: string
+                      name:
+                        description: Name for Kubernetes secret
+                        type: string
+                      type:
+                        description: Type of Secret in Kubernetes
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  transforms:
+                    items:
+                      type: string
+                    type: array
+                type: object
+              vault:
+                description: AzureKeyVault contains information needed to get the Azure Key Vault secret from Azure Key Vault
+                properties:
+                  name:
+                    description: Name of the Azure Key Vault
+                    type: string
+                  object:
+                    description: AzureKeyVaultObject has information about the Azure Key Vault object to get from Azure Key Vault
+                    properties:
+                      contentType:
+                        description: AzureKeyVaultObjectContentType defines what content type a secret contains, only used when type is multi-key-value-secret
+                        enum:
+                        - application/x-json
+                        - application/x-yaml
+                        type: string
+                      name:
+                        description: The object name in Azure Key Vault
+                        type: string
+                      type:
+                        description: AzureKeyVaultObjectType defines which Object type to get from Azure Key Vault
+                        enum:
+                        - secret
+                        - certificate
+                        - key
+                        - multi-key-value-secret
+                        type: string
+                      version:
+                        description: The object version in Azure Key Vault
+                        type: string
+                    required:
+                    - name
+                    - type
+                    type: object
+                required:
+                - name
+                - object
+                type: object
+            required:
+            - vault
+            type: object
+          status:
+            description: AzureKeyVaultSecretStatus is the status for a AzureKeyVaultSecret resource
+            properties:
+              lastAzureUpdate:
+                format: date-time
+                type: string
+              secretHash:
+                type: string
+              secretName:
+                type: string
+            required:
+            - secretHash
+            - secretName
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: false
+    subresources:
+      status: {}
+  - additionalPrinterColumns:
+    - description: Which Azure Key Vault this resource is asosiated with
+      jsonPath: .spec.vault.name
+      name: Vault
+      type: string
+    - description: Which Azure Key Vault object this resource is asosiated with
+      jsonPath: .spec.vault.object.name
+      name: Vault Object
+      type: string
+    - description: Which Kubernetes Secret this resource is synched with, if any
+      jsonPath: .status.secretName
+      name: Secret Name
+      type: string
+    - description: Which Kubernetes ConfigMap this resource is synched with, if any
+      jsonPath: .status.configMapName
+      name: ConfigMap Name
+      type: string
+    - description: When this resource was last synched with Azure Key Vault
+      jsonPath: .status.lastAzureUpdate
+      name: Last Synched
+      type: date
+    - description: Time since this resource was created
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v2alpha1
+    schema:
+      openAPIV3Schema:
+        description: AzureKeyVaultSecret is a specification for a AzureKeyVaultSecret resource
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AzureKeyVaultSecretSpec is the spec for a AzureKeyVaultSecret resource
+            properties:
+              output:
+                description: AzureKeyVaultOutput defines output sources, supports Secret and Configmap
+                properties:
+                  configMap:
+                    description: AzureKeyVaultOutputConfigMap has information needed to output a secret from Azure Key Vault to Kubertnetes as a ConfigMap resource
+                    properties:
+                      dataKey:
+                        description: The key to use in Kubernetes ConfigMap when setting the value from Azure Keyv Vault object data
+                        type: string
+                      name:
+                        description: Name for Kubernetes ConfigMap
+                        type: string
+                    required:
+                    - dataKey
+                    - name
+                    type: object
+                  secret:
+                    description: AzureKeyVaultOutputSecret has information needed to output a secret from Azure Key Vault to Kubertnetes as a Secret resource
+                    properties:
+                      chainOrder:
+                        description: By setting chainOrder to ensureserverfirst the server certificate will be moved first in the chain
+                        enum:
+                        - ensureserverfirst
+                        type: string
+                      dataKey:
+                        description: The key to use in Kubernetes secret when setting the value from Azure Keyv Vault object data
+                        type: string
+                      name:
+                        description: Name for Kubernetes secret
+                        type: string
+                      type:
+                        description: Type of Secret in Kubernetes
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  transform:
+                    items:
+                      type: string
+                    type: array
+                type: object
+              vault:
+                description: AzureKeyVault contains information needed to get the Azure Key Vault secret from Azure Key Vault
+                properties:
+                  azureIdentity:
+                    description: AzureIdentity has information about the azure identity used for Azure Key Vault authentication
+                    properties:
+                      name:
+                        description: Name of the azureIdentity to use for Azure Key Vault authentication
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  name:
+                    description: Name of the Azure Key Vault
+                    type: string
+                  object:
+                    description: AzureKeyVaultObject has information about the Azure Key Vault object to get from Azure Key Vault
+                    properties:
+                      contentType:
+                        description: AzureKeyVaultObjectContentType defines what content type a secret contains, only used when type is multi-key-value-secret
+                        enum:
+                        - application/x-json
+                        - application/x-yaml
+                        type: string
+                      name:
+                        description: The object name in Azure Key Vault
+                        type: string
+                      type:
+                        description: AzureKeyVaultObjectType defines which Object type to get from Azure Key Vault
+                        enum:
+                        - secret
+                        - certificate
+                        - key
+                        - multi-key-value-secret
+                        type: string
+                      version:
+                        description: The object version in Azure Key Vault
+                        type: string
+                    required:
+                    - name
+                    - type
+                    type: object
+                required:
+                - name
+                - object
+                type: object
+            required:
+            - vault
+            type: object
+          status:
+            description: AzureKeyVaultSecretStatus is the status for a AzureKeyVaultSecret resource
+            properties:
+              configMapHash:
+                type: string
+              configMapName:
+                type: string
+              lastAzureUpdate:
+                format: date-time
+                type: string
+              secretHash:
+                type: string
+              secretName:
+                type: string
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: false
+    subresources:
+      status: {}
+  - additionalPrinterColumns:
+    - description: Which Azure Key Vault this resource is asosiated with
+      jsonPath: .spec.vault.name
+      name: Vault
+      type: string
+    - description: Which Azure Key Vault object this resource is asosiated with
+      jsonPath: .spec.vault.object.name
+      name: Vault Object
+      type: string
+    - description: Which Kubernetes Secret this resource is synched with, if any
+      jsonPath: .status.secretName
+      name: Secret Name
+      type: string
+    - description: Which Kubernetes ConfigMap this resource is synched with, if any
+      jsonPath: .status.configMapName
+      name: ConfigMap Name
+      type: string
+    - description: When this resource was last synched with Azure Key Vault
+      jsonPath: .status.lastAzureUpdate
+      name: Last Synched
+      type: date
+    - description: Time since this resource was created
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v2beta1
+    schema:
+      openAPIV3Schema:
+        description: AzureKeyVaultSecret is a specification for a AzureKeyVaultSecret resource
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AzureKeyVaultSecretSpec is the spec for a AzureKeyVaultSecret resource
+            properties:
+              output:
+                description: AzureKeyVaultOutput defines output sources, supports Secret and Configmap
+                properties:
+                  configMap:
+                    description: AzureKeyVaultOutputConfigMap has information needed to output a secret from Azure Key Vault to Kubertnetes as a ConfigMap resource
+                    properties:
+                      dataKey:
+                        description: The key to use in Kubernetes ConfigMap when setting the value from Azure Keyv Vault object data
+                        type: string
+                      name:
+                        description: Name for Kubernetes ConfigMap
+                        type: string
+                    required:
+                    - dataKey
+                    - name
+                    type: object
+                  secret:
+                    description: AzureKeyVaultOutputSecret has information needed to output a secret from Azure Key Vault to Kubertnetes as a Secret resource
+                    properties:
+                      chainOrder:
+                        description: By setting chainOrder to ensureserverfirst the server certificate will be moved first in the chain
+                        enum:
+                        - ensureserverfirst
+                        type: string
+                      dataKey:
+                        description: The key to use in Kubernetes secret when setting the value from Azure Keyv Vault object data
+                        type: string
+                      name:
+                        description: Name for Kubernetes secret
+                        type: string
+                      type:
+                        description: Type of Secret in Kubernetes
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  transform:
+                    items:
+                      type: string
+                    type: array
+                type: object
+              vault:
+                description: AzureKeyVault contains information needed to get the Azure Key Vault secret from Azure Key Vault
+                properties:
+                  azureIdentity:
+                    description: AzureIdentity has information about the azure identity used for Azure Key Vault authentication
+                    properties:
+                      name:
+                        description: Name of the azureIdentity to use for Azure Key Vault authentication
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  name:
+                    description: Name of the Azure Key Vault
+                    type: string
+                  object:
+                    description: AzureKeyVaultObject has information about the Azure Key Vault object to get from Azure Key Vault
+                    properties:
+                      contentType:
+                        description: AzureKeyVaultObjectContentType defines what content type a secret contains, only used when type is multi-key-value-secret
+                        enum:
+                        - application/x-json
+                        - application/x-yaml
+                        type: string
+                      name:
+                        description: The object name in Azure Key Vault
+                        type: string
+                      type:
+                        description: AzureKeyVaultObjectType defines which Object type to get from Azure Key Vault
+                        enum:
+                        - secret
+                        - certificate
+                        - key
+                        - multi-key-value-secret
+                        type: string
+                      version:
+                        description: The object version in Azure Key Vault
+                        type: string
+                    required:
+                    - name
+                    - type
+                    type: object
+                required:
+                - name
+                - object
+                type: object
+            required:
+            - vault
+            type: object
+          status:
+            description: AzureKeyVaultSecretStatus is the status for a AzureKeyVaultSecret resource
+            properties:
+              configMapHash:
+                type: string
+              configMapName:
+                type: string
+              lastAzureUpdate:
+                format: date-time
+                type: string
+              secretHash:
+                type: string
+              secretName:
+                type: string
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: akv2k8s-controller
+  namespace: akv2k8s
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: akv2k8s
+  name: akv2k8s-envinjector
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: akv2k8s-envinjector-tls
+  namespace: akv2k8s
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+type: kubernetes.io/tls
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURoekNDQW0rZ0F3SUJBZ0lSQUtoY1NFaE9oZ2w0d3RZV3FxSUFpaE13RFFZSktvWklodmNOQVFFTEJRQXcKRlRFVE1CRUdBMVVFQXhNS2MzWmpMV05oZEMxallUQWVGdzB5TVRBNE1UTXhNREEzTkRaYUZ3MHlNekE0TVRNeApNREEzTkRaYU1Db3hLREFtQmdOVkJBTVRIMkZyZGpKck9ITXRaVzUyYVc1cVpXTjBiM0l1WkdWbVlYVnNkQzV6CmRtTXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEUDhic1Q2VWQ3VERrcERqM1cKemgwMnZTaDRUWjcxMWdjZDBVeXUvZnpzdW82Y21DdkRNZFVJT1UwclI0bEdvQi8wMnphY3FSZFV0Mk05anpXZgpUVkY3QzJob1ZhQ3FTa2ZrUmNmd3l0NmtrWncyYzBScitWSXExRG13aTJLTEF0ZXZvangrNERLU25aNmtZYXgxCmVJdVNvMVhrTjgwNmZTWldiZE9CWE83cG5ZN21MbUNxdGxpWE1TdTR0NjVaSy9vMHk3RWFZRjVtem83d0UyOVYKT2xjMlNpRGdFbmdKblpzWjE1dStWZ1JOMXptZXBiTytFS2M5ZGNNNmlvZUNZdzV3ZXdMekwxd3V6WlI0TlViZQpsQkQ0YXN1Z2lsdklaWnI3NXhJNlRvdWkwblltTXI2THJsVEkwTWdvUUFuOVhHcVkzMENGakJnWWdwRTBOWlpoCnRQU0JBZ01CQUFHamdid3dnYmt3RGdZRFZSMFBBUUgvQkFRREFnV2dNQjBHQTFVZEpRUVdNQlFHQ0NzR0FRVUYKQndNQkJnZ3JCZ0VGQlFjREFqQU1CZ05WSFJNQkFmOEVBakFBTUI4R0ExVWRJd1FZTUJhQUZMWHJUUEs3WStveQphcnR6dU5ra3pBcWJ2alhsTUZrR0ExVWRFUVJTTUZDQ0xXRnJkakpyT0hNdFpXNTJhVzVxWldOMGIzSXVaR1ZtCllYVnNkQzV6ZG1NdVkyeDFjM1JsY2k1c2IyTmhiSUlmWVd0Mk1tczRjeTFsYm5acGJtcGxZM1J2Y2k1a1pXWmgKZFd4MExuTjJZekFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBRUpFVGhwN3BlVGNwRktwaUZLL1UzdVJrdU8reQpNYmxFR3JLcGVOL3hndE5FSVRKbVdkb25UNzBRRmw0NFhHZm1lSU0zbXRzQVNaVlZwWEFPVDdNN29vV1ZDVHFjCk9ZRWVEeFRDN0tHaExLNi9TNy9OUUZBTldycnNWU0twQ0NBMTZFZ3NzbnduY3NoRW4wOFZBWkh2UGVoanlaSTIKbi9MVDhCYzNGSUljVFpybkgzUWlMc2QxMnNlaWp5R3I1bmliNmthTWdCRXFVOEN0RDk3T3Yvc1F0SEViUkoyaApvUDl3MmJEeDlEWXo5bkIrcTE5U0VLWVg1Z0duNGk2MXRjeE05ZE12M3hiYU9QREczSThXZGt1cy9sa3kvc0RiCnBQbXpyNDZ3aFdPY1VDZ0JzSzV6eWNXOXE0VDV5RE5UUWhWbGIweGZDYzVNYnpOTlpYaDJqS0NDN2c9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBei9HN0UrbEhlMHc1S1E0OTFzNGROcjBvZUUyZTlkWUhIZEZNcnYzODdMcU9uSmdyCnd6SFZDRGxOSzBlSlJxQWY5TnMybktrWFZMZGpQWTgxbjAxUmV3dG9hRldncWtwSDVFWEg4TXJlcEpHY05uTkUKYS9sU0t0UTVzSXRpaXdMWHI2SThmdUF5a3AyZXBHR3NkWGlMa3FOVjVEZk5PbjBtVm0zVGdWenU2WjJPNWk1ZwpxclpZbHpFcnVMZXVXU3Y2Tk11eEdtQmVaczZPOEJOdlZUcFhOa29nNEJKNENaMmJHZGVidmxZRVRkYzVucVd6CnZoQ25QWFhET29xSGdtTU9jSHNDOHk5Y0xzMlVlRFZHM3BRUStHckxvSXBieUdXYSsrY1NPazZMb3RKMkpqSysKaTY1VXlORElLRUFKL1Z4cW1OOUFoWXdZR0lLUk5EV1dZYlQwZ1FJREFRQUJBb0lCQUVmejJBeml1blpDZ01EaApDYXJMTlRhY3EyVTlUcFM0RTB4UkFOeklTLzFKN0ZEcElyTnZDY3pIcnhrYnJyZCtickJXTGdaMVIvcHJYbTZOCm9EdFlFS3FuM3QvRFNVM0RXQzczcW1CNmdpR2x0TXp1ZzYxczN1NnM4cTFRL2E4bU02VzFXSU42Wm1Wdkh0YTQKYVdsWVpjcytzMWk5cWtqanh5RSs3V0drMjVKLzc2SERMYzNVc0h6M3dYMXBYWGVkZVI5cnpjdmUzMEZQNGNrYQp1c2RFck1LT0piYWx4RWhQWVZBM0p5NHBtdDE3amNFem1sWGk3dlpvNTFkaXh6M01hRG1ucWdSYVpQVVNoeUpsCk5LcTV2WDY3L0RqbDJ5TnNNTEVUL2pYZ1h2c3ZGVERlVk5NcGpTMGx3MS8wVlVwaVJSdDZpMXliYjU3M21mK2YKVEdCTlVYRUNnWUVBNm8xTVhJQlkxZ1FpT3VRUW50UURkaDMwaDdtN0dKb1c3V2tiRk16Z3NDckIwRzVpdHY5awpMWExaR2dxVzd4ci8vam9MVlZmbGpHOXY4alpzdElvcVZOQnFPblNXTGJ4MDV0UERhY0RXb0U2Q3RGZW1mZXRjCkpieWJQRGFGcUNDdW1vTGo2WVJaSktjcWxaSE9IZnQrUUhoUFBSb0d0TEpYYUl1MVRWZ0d3cDBDZ1lFQTR2V1EKakhVR1k3UDJoSDBRSnFtcTMyZ3F3K3A1OUppVlVwc3UwQjVhV2lSWXdESW9kOE1xQUNSLzYwQWRyRHVWd05lNQpVU216bk5hcjdObjJUajBaZlAzU1c5OHhoY2kvS0VDejcvZ3pGMXpSOFVhdE5IM3BrTHVkSzNabEpCWVh0UENiCjRnRmhGVEFsR2pJRmlLSTRxYVozQ0Z6a2tDSDdEcEVlU1NlOE1qVUNnWUJHOTJ1VVRVMFRxL3FEWVAvYVhvR1IKbW15aktFSUFwcGFyVEhMaUx6OElibGRuN2c0MkdqM0FOcENUZllLL1k2Ynl6N01nSmxFUTFhTEVZVTB3cnVFeAora0U1NEk2VDFnSjAyTHUyWXA5TnI1T0NaMGE3c0p1WDIySUlyT0p4eFRtdkRFMVRHVFV6anRTbW5wQURxRlZCCndtVVBNckcydUlNVDRibUFabExkVFFLQmdRREdZQU9YY1ZaRFlYSnd2V3VYajZlR0hHTjgyUDc5OXp4VmRzU0YKTG5LazVhNFpWLzRkS0I0Vy85QTdqTkFpMGZZRUY4cW9FWDRuOFU5VzkvQ2MxRFRxRm1WKzNlaElXbjRUTGZMWgpKaVZxSHp4MTJ1UGJ4TTZaTGhPamdKbkkzL0thdWRCV3pBUFNaRUdaMHUwWlQwbWRwNTNWVm5TRk10NWhEaURkCnFuaUpuUUtCZ0VCNmpZZmZacW96cVdTektZbU42NmlYUEVnVWJRd0liTTNCdzB2cld6UG5FTUtYZ0hHcTBkMGoKaDJFWjFKVHJ5V1IvU1hNdFJOKzJoTFp5ZFRQNlBnUVgzYUIzQXZKQUZmOHNFYTVjb2tEa0V6TndPZ01WNXZWOQpOZk40V2RwZjAwSTdWaE1GeDA0eHI4V3BTeFRnR0R2VnFWS1RIVXdYc1hOOTZWRHVVK2tLCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+  ca.crt:  LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGVENDQWYyZ0F3SUJBZ0lRSWVPcGlxOFdsNE9wazJ5WVBSMVFNVEFOQmdrcWhraUc5dzBCQVFzRkFEQVYKTVJNd0VRWURWUVFERXdwemRtTXRZMkYwTFdOaE1CNFhEVEl4TURneE16RXdNRGMwTmxvWERUTXhNRGd4TVRFdwpNRGMwTmxvd0ZURVRNQkVHQTFVRUF4TUtjM1pqTFdOaGRDMWpZVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFECmdnRVBBRENDQVFvQ2dnRUJBS2FqcXZDTWY3bEdXY255aThyWDBZaG0xSjhESXovdVZGUnNJNThkbVpJVjNwczAKd0VOZmpKQ0xKNnNuWmVTZ1JLVS92WC94MGMzNU1FTFV6d2gzTVJ6NkxxOWtaUGFVUENUSG1oK0t0bWFmVldtTQpKVVhrbjk4RGlOZ1NGRmlaR2RReDNtTFlFREtOS2hSOUhJTTArRFNLelFzNUdieXpPU09zZHdHNHRuMzNwc1R0Ci9oMnhXSkZLdFFYRDNzcU1MRDNpaWZwcERCQlEySU5TSy8rdHg5cHVwTXA1aUVvdFlQRENXakNsTzhtSWhnSFEKY1NSbFcrSjRqbVdxOFlCS1ZvT2FtMmhvRi9uTFhMV2J6MjJvQ05jTGlyZjhiV2UxOWUxdWpmbDJZWnBCT2dMNwpsMHlVNHc2UC9FS1RveHl0VWhWeCtNOUV3cGpTZ0tTcG9KME1MRnNDQXdFQUFhTmhNRjh3RGdZRFZSMFBBUUgvCkJBUURBZ0trTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGQndNQkJnZ3JCZ0VGQlFjREFqQVBCZ05WSFJNQkFmOEUKQlRBREFRSC9NQjBHQTFVZERnUVdCQlMxNjB6eXUyUHFNbXE3YzdqWkpNd0ttNzQxNVRBTkJna3Foa2lHOXcwQgpBUXNGQUFPQ0FRRUFtY2N5Z1ZreEsxZ0RwU2NDWEh0OU0rc25CaG4ybDhEaXZGdDlnMElYYUVySE93QnlKak02CmxyU1o4VlpGOVNuaHFJRjcxVE1lcTRnQWMwdEhXUzJSdUlac0pUY295czR3d2l5NXhUTkJ4VnYyeWRvY3g4K20KdDFXdWhpMS9MblNlVkFLemF0eGhMa282NU94bW1tY0NWMjNnNFRqOEtCTXIvT0FLdnozaG9kYksvUWx4RGFRUApjS1hXUitoQnNwYlR5TzlNZHk4VGdSTlFKc1IvNlNPVjRTY3h6R0dhQkJrc1I5ZmNLaFpoZjFVYmdyTi9vdzdpClhCWnowMzVrNlhvUy9BMmhwWThsdWJMQUNQRWFrN09zMXczaTZnL2pWS2l0ck4rMWNLa3ZxbTBDeldEQW1MVk0KaFl4SlJNY2tlWlZuUXplWVMxckFCbHVuM20xamwzTlNQdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: akv2k8s-envinjector-ca
+  namespace: akv2k8s
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+type: kubernetes.io/tls
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGVENDQWYyZ0F3SUJBZ0lRSWVPcGlxOFdsNE9wazJ5WVBSMVFNVEFOQmdrcWhraUc5dzBCQVFzRkFEQVYKTVJNd0VRWURWUVFERXdwemRtTXRZMkYwTFdOaE1CNFhEVEl4TURneE16RXdNRGMwTmxvWERUTXhNRGd4TVRFdwpNRGMwTmxvd0ZURVRNQkVHQTFVRUF4TUtjM1pqTFdOaGRDMWpZVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFECmdnRVBBRENDQVFvQ2dnRUJBS2FqcXZDTWY3bEdXY255aThyWDBZaG0xSjhESXovdVZGUnNJNThkbVpJVjNwczAKd0VOZmpKQ0xKNnNuWmVTZ1JLVS92WC94MGMzNU1FTFV6d2gzTVJ6NkxxOWtaUGFVUENUSG1oK0t0bWFmVldtTQpKVVhrbjk4RGlOZ1NGRmlaR2RReDNtTFlFREtOS2hSOUhJTTArRFNLelFzNUdieXpPU09zZHdHNHRuMzNwc1R0Ci9oMnhXSkZLdFFYRDNzcU1MRDNpaWZwcERCQlEySU5TSy8rdHg5cHVwTXA1aUVvdFlQRENXakNsTzhtSWhnSFEKY1NSbFcrSjRqbVdxOFlCS1ZvT2FtMmhvRi9uTFhMV2J6MjJvQ05jTGlyZjhiV2UxOWUxdWpmbDJZWnBCT2dMNwpsMHlVNHc2UC9FS1RveHl0VWhWeCtNOUV3cGpTZ0tTcG9KME1MRnNDQXdFQUFhTmhNRjh3RGdZRFZSMFBBUUgvCkJBUURBZ0trTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGQndNQkJnZ3JCZ0VGQlFjREFqQVBCZ05WSFJNQkFmOEUKQlRBREFRSC9NQjBHQTFVZERnUVdCQlMxNjB6eXUyUHFNbXE3YzdqWkpNd0ttNzQxNVRBTkJna3Foa2lHOXcwQgpBUXNGQUFPQ0FRRUFtY2N5Z1ZreEsxZ0RwU2NDWEh0OU0rc25CaG4ybDhEaXZGdDlnMElYYUVySE93QnlKak02CmxyU1o4VlpGOVNuaHFJRjcxVE1lcTRnQWMwdEhXUzJSdUlac0pUY295czR3d2l5NXhUTkJ4VnYyeWRvY3g4K20KdDFXdWhpMS9MblNlVkFLemF0eGhMa282NU94bW1tY0NWMjNnNFRqOEtCTXIvT0FLdnozaG9kYksvUWx4RGFRUApjS1hXUitoQnNwYlR5TzlNZHk4VGdSTlFKc1IvNlNPVjRTY3h6R0dhQkJrc1I5ZmNLaFpoZjFVYmdyTi9vdzdpClhCWnowMzVrNlhvUy9BMmhwWThsdWJMQUNQRWFrN09zMXczaTZnL2pWS2l0ck4rMWNLa3ZxbTBDeldEQW1MVk0KaFl4SlJNY2tlWlZuUXplWVMxckFCbHVuM20xamwzTlNQdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBcHFPcThJeC91VVpaeWZLTHl0ZlJpR2JVbndNalArNVVWR3dqbngyWmtoWGVtelRBClExK01rSXNucXlkbDVLQkVwVCs5Zi9IUnpma3dRdFRQQ0hjeEhQb3VyMlJrOXBROEpNZWFINHEyWnA5VmFZd2wKUmVTZjN3T0kyQklVV0prWjFESGVZdGdRTW8wcUZIMGNnelQ0TklyTkN6a1p2TE01STZ4M0FiaTJmZmVteE8zKwpIYkZZa1VxMUJjUGV5b3dzUGVLSitta01FRkRZZzFJci82M0gybTZreW5tSVNpMWc4TUphTUtVN3lZaUdBZEJ4CkpHVmI0bmlPWmFyeGdFcFdnNXFiYUdnWCtjdGN0WnZQYmFnSTF3dUt0L3h0WjdYMTdXNk4rWFpobWtFNkF2dVgKVEpUakRvLzhRcE9qSEsxU0ZYSDR6MFRDbU5LQXBLbWduUXdzV3dJREFRQUJBb0lCQUFDYTY0NEFGSjZwb0wzWgpBYVQwNzYvZEg3eU1HRjZ0RU9WVmx6T0d1ZjRMMGtraUFlaTh1aGYwU1dxWHRBa0dnL2xOcC9TRS9rd1BNWnVzCmhpdnpzdHYyRktGU2JnTnZPbUN2ME9GNGNYMGg2djk5SU0yR0xRWjBUdFRxQytUZWVYZUp6dEx4RWUzOUVVQU4KekVLMXVJa0lVQUpRYk1XQXFSNTJDK0NYdVNIditNeStmTk80cDdBa1JDc0dHNHo3eHNFTkljM002NnNQUmJoTAp2bGQxa1dTUlR5RHRWcjBFbitXMFpSakMzdXIrelpkQUxnQmpubmpqSHkrNnZuRzBmNkNrTzNUZzEyQlV6UXNlCjBJSWNJWHdWWWpSOGRxWG1BZlR2Ym5LNWtxelMvdjNxaFRLTVZtNzVLRytkL3ZzZnhsRVhCcUI4VGQvUTRLeEUKYnR5T1ZvRUNnWUVBeHJKbkhsNW1vS3Y1UGF3eFliU2toeGhmMmg0bGFyZDlrT21UWE1zWUN6bThNTXErOVlKbAoyL1E2ZEpVUXNETTVXamhranRZM0J0c1FvSW9HRUNwT1hqM3g0Kzhsd3N6MlM4SDBsYm1kSXVERWZ1VFpQT0hmCm1Qc1NST2xlRWR3ekorSVk4Z2dlRHd1c0FTWjlGdGU2bjl6anIrWE1yMG0wdlZ1azdYeGF4dUVDZ1lFQTFySjgKbERwNGg3WUtKRGJiQTNEN1NlYy9FL2R6aDQyWVcyMGxZbGxBNjg5RkVNbHh5bFJMNmIzVWV2UFJJQ3NMMmZzbApzbDJsNEZEOFNYSk9wSjRjOU9VQTBCZ2h5anV6VVpMLzA1bUtRanhWeTIxUEpXQ1BodlVyZURqeU8vUXdzRmN4CkMyRHVQaW9OZllDN2pUYzZTZ2ZJckdVOW1yV1JaN05rU3MybnByc0NnWUJzNUNCM0dDME9LTEV6QjBjWTBMTEsKQnFXaEY1eFIyN1ZJMFhrZEJZQnJ4bnhJRVJTTjM2U0s0bEdXeW9xV3hidk1vZE1hSkhPTG9rcCtjS1haL2hWcwp1RzMwQ0grZFBrNU1Qa01ZT3R6TzNIZFRRMzk2U2g4TDY2eWJiM2xLT0c4Z2tGd3phQmR4RDJoNFNPdU10VFZsCm50eDQ3V3M3TlIyRUdORk9CVFNLZ1FLQmdHK2c3K3MyRjVNZ1VGZVIrZi9wRDQ3V1lGS21WM2hFWTlJdGhzR0MKL0tGZTdGOFZEa2dQMmtTWEFkSkgwUlR6ckw3U3VUL3JOeUxSbU1zclZyNTZ3ejJGa0EyaWJuY3k0VUpwdHdBegpGZExvZ2djNk4ydU1zRE9RWitDall6ZE8rTDNISitYdHFSSERWYTVLYjdtMTNHVy9kRlJHYzJoc1BVVDQzZzJTCnJqZWZBb0dBU0p2cUt2SCthcWo1eHJBcXFrQlNBcU9lTUVveUt6R2tkZFFkcy9JT1o1OE9iMERIbnd5WGhiQ2MKTnY0aThZa25ocVMxOWR3VW5SMm8vUElIZFFEd0dPQ2U1QU5FQmV3Q0E4YXExOU5zTHhnUHpSVGVnZmpvdUhnMwpsTGtmMzFYbEJKMlRMR0hqOXdCWXl4bUtSZUdGSSs4TzVNSUQ3N0lTaEp5Y3RGTys0eVE9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+  ca.crt:  LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGVENDQWYyZ0F3SUJBZ0lRSWVPcGlxOFdsNE9wazJ5WVBSMVFNVEFOQmdrcWhraUc5dzBCQVFzRkFEQVYKTVJNd0VRWURWUVFERXdwemRtTXRZMkYwTFdOaE1CNFhEVEl4TURneE16RXdNRGMwTmxvWERUTXhNRGd4TVRFdwpNRGMwTmxvd0ZURVRNQkVHQTFVRUF4TUtjM1pqTFdOaGRDMWpZVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFECmdnRVBBRENDQVFvQ2dnRUJBS2FqcXZDTWY3bEdXY255aThyWDBZaG0xSjhESXovdVZGUnNJNThkbVpJVjNwczAKd0VOZmpKQ0xKNnNuWmVTZ1JLVS92WC94MGMzNU1FTFV6d2gzTVJ6NkxxOWtaUGFVUENUSG1oK0t0bWFmVldtTQpKVVhrbjk4RGlOZ1NGRmlaR2RReDNtTFlFREtOS2hSOUhJTTArRFNLelFzNUdieXpPU09zZHdHNHRuMzNwc1R0Ci9oMnhXSkZLdFFYRDNzcU1MRDNpaWZwcERCQlEySU5TSy8rdHg5cHVwTXA1aUVvdFlQRENXakNsTzhtSWhnSFEKY1NSbFcrSjRqbVdxOFlCS1ZvT2FtMmhvRi9uTFhMV2J6MjJvQ05jTGlyZjhiV2UxOWUxdWpmbDJZWnBCT2dMNwpsMHlVNHc2UC9FS1RveHl0VWhWeCtNOUV3cGpTZ0tTcG9KME1MRnNDQXdFQUFhTmhNRjh3RGdZRFZSMFBBUUgvCkJBUURBZ0trTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGQndNQkJnZ3JCZ0VGQlFjREFqQVBCZ05WSFJNQkFmOEUKQlRBREFRSC9NQjBHQTFVZERnUVdCQlMxNjB6eXUyUHFNbXE3YzdqWkpNd0ttNzQxNVRBTkJna3Foa2lHOXcwQgpBUXNGQUFPQ0FRRUFtY2N5Z1ZreEsxZ0RwU2NDWEh0OU0rc25CaG4ybDhEaXZGdDlnMElYYUVySE93QnlKak02CmxyU1o4VlpGOVNuaHFJRjcxVE1lcTRnQWMwdEhXUzJSdUlac0pUY295czR3d2l5NXhUTkJ4VnYyeWRvY3g4K20KdDFXdWhpMS9MblNlVkFLemF0eGhMa282NU94bW1tY0NWMjNnNFRqOEtCTXIvT0FLdnozaG9kYksvUWx4RGFRUApjS1hXUitoQnNwYlR5TzlNZHk4VGdSTlFKc1IvNlNPVjRTY3h6R0dhQkJrc1I5ZmNLaFpoZjFVYmdyTi9vdzdpClhCWnowMzVrNlhvUy9BMmhwWThsdWJMQUNQRWFrN09zMXczaTZnL2pWS2l0ck4rMWNLa3ZxbTBDeldEQW1MVk0KaFl4SlJNY2tlWlZuUXplWVMxckFCbHVuM20xamwzTlNQdz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: akv2k8s-controller
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+rules:
+- apiGroups:
+  - spv.no
+  resources:
+  - azurekeyvaultsecrets
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  - spv.no
+  resources:
+  - azurekeyvaultsecrets/status
+  verbs:
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - configmaps
+  verbs:
+  - create
+  - update
+  - delete
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - update
+  - patch
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: akv2k8s-controller-reader
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+rules:
+- apiGroups:
+  - spv.no
+  resources:
+  - azurekeyvaultsecrets
+  verbs:
+  - get
+  - list
+  - watch
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: akv2k8s-envinjector
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets # in order to create secret for client cert
+  verbs:
+  - create
+  - update
+  - get
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - namespaces # in order to authorize incoming auth requests
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts # in order to read
+  verbs:
+  - get
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: akv2k8s-envinjector-reader
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+rules:
+- apiGroups:
+  - spv.no
+  resources:
+  - azurekeyvaultsecrets
+  verbs:
+  - get
+  - list
+  - watch
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: akv2k8s-controller
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+subjects:
+- kind: ServiceAccount
+  name: akv2k8s-controller
+  namespace: akv2k8s
+roleRef:
+  kind: ClusterRole
+  name: akv2k8s-controller
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: akv2k8s-controller-reader
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+subjects:
+- kind: Group
+  name: system:serviceaccounts
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: akv2k8s-controller-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: akv2k8s-envinjector-sa
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+subjects:
+- kind: ServiceAccount
+  namespace: akv2k8s
+  name: akv2k8s-envinjector
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: akv2k8s-envinjector
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: akv2k8s-envinjector-reader
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+subjects:
+- kind: Group
+  name: system:serviceaccounts
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: akv2k8s-envinjector-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: akv2k8s-controller
+  namespace: akv2k8s
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+    app.kubernetes.io/component: akv2k8s-controller
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+    app.kubernetes.io/component: akv2k8s-controller
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: akv2k8s-envinjector
+  namespace: akv2k8s
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+    app.kubernetes.io/component: akv2k8s-webhook
+spec:
+  type: ClusterIP
+  ports:
+    - name: webhook-tls
+      port: 443
+      targetPort: 8443
+      protocol: TCP
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+    - name: auth-tls
+      port: 9443
+      targetPort: 9443
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+    app.kubernetes.io/component: akv2k8s-webhook
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: akv2k8s-controller
+  namespace: akv2k8s
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: akv2k8s
+      app.kubernetes.io/instance: akv2k8s
+      app.kubernetes.io/component: akv2k8s-controller
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akv2k8s
+        app.kubernetes.io/instance: akv2k8s
+        app.kubernetes.io/component: akv2k8s-controller
+    spec:
+      serviceAccountName: akv2k8s-controller
+      containers:
+      - name: controller
+        # see https://github.com/SparebankenVest/azure-key-vault-to-kubernetes for details about this image
+        image: "spvest/azure-keyvault-controller:1.3.0"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: AUTH_TYPE
+          value: azureCloudConfig
+        - name: METRICS_ENABLED
+          value: "false"
+        - name: METRICS_PORT
+          value: "9000"
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        args:
+          - "--cloudconfig=/etc/kubernetes/azure.json"
+          - "--version=1.3.0"
+          - "--v=2"
+          - "--logging-format=text"
+          - "--watch-all-namespaces=true"
+        ports:
+          - name: http
+            containerPort: 9000
+        securityContext:
+          allowPrivilegeEscalation: true
+        volumeMounts:
+          - name: azure-config
+            mountPath: "/etc/kubernetes/azure.json"
+            readOnly: true
+      volumes:
+      - name: azure-config
+        hostPath:
+          path: "/etc/kubernetes/azure.json"
+          type: File
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: akv2k8s-envinjector
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: akv2k8s
+      app.kubernetes.io/instance: akv2k8s
+      app.kubernetes.io/component: akv2k8s-webhook
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akv2k8s
+        app.kubernetes.io/instance: akv2k8s
+        app.kubernetes.io/component: akv2k8s-webhook
+      annotations:
+        checksum/config: f61a132b358c1370278f3b1652e4fdef8b137985084a09f14539bb510558e904
+    spec:
+      serviceAccountName: akv2k8s-envinjector
+      containers:
+        - name: webhook
+          image: "spvest/azure-keyvault-webhook:1.3.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--cloudconfig=/etc/kubernetes/azure.json"
+            - "--version=1.3.0"
+            - "--versionenvimage=1.3.0"
+            - "--v=2"
+            - "--logging-format=text"
+          env:
+          - name: HTTP_PORT
+            value: "8080"
+          - name: HTTP_PORT_EXTERNAL
+            value: "80"
+          - name: TLS_PORT
+            value: "8443"
+          - name: TLS_PORT_EXTERNAL
+            value: "443"
+          - name: MTLS_PORT
+            value: "9443"
+          - name: MTLS_PORT_EXTERNAL
+            value: "9443"
+          - name: MTLS_PORT
+            value: "9443"
+          - name: TLS_CERT_DIR
+            value: /var/serving-cert
+          - name: CA_CERT_DIR
+            value: /var/ca-cert
+          - name: ENV_INJECTOR_EXEC_DIR
+            value: /azure-keyvault/
+          - name: WEBHOOK_AUTH_SERVICE
+            value: akv2k8s-envinjector
+          - name: AUTH_TYPE
+            value: azureCloudConfig
+          - name: USE_AUTH_SERVICE
+            value: "true"
+          - name: AZUREKEYVAULT_ENV_IMAGE
+            value: spvest/azure-keyvault-env:1.3.0
+          - name: DOCKER_IMAGE_INSPECTION_TIMEOUT
+            value: "20"
+          - name: METRICS_ENABLED
+            value: "false"
+          ports:
+          - name: webhook-tls
+            containerPort: 8443
+          - name: http
+            containerPort: 8080
+          - name: auth-tls
+            containerPort: 9443
+          readinessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /healthz
+              port: 8443
+          volumeMounts:
+          - mountPath: /var/serving-cert
+            name: serving-cert
+          - mountPath: /var/ca-cert
+            name: ca-cert
+          - mountPath: "/etc/kubernetes/azure.json"
+            name: azureconf
+            readOnly: true
+          securityContext:
+
+            allowPrivilegeEscalation: true
+      volumes:
+      - name: serving-cert
+        secret:
+          defaultMode: 420
+          secretName: akv2k8s-envinjector-tls
+      - name: ca-cert
+        secret:
+          defaultMode: 420
+          secretName: akv2k8s-envinjector-ca
+      - name: azureconf
+        hostPath:
+          path: "/etc/kubernetes/azure.json"
+          type: File
+
+---
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: akv2k8s-envinjector
+  namespace: default
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: akv2k8s-2.1.0
+webhooks:
+- name: pods.env-injector.admission.spv.no
+  admissionReviewVersions: ["v1beta1"]
+  clientConfig:
+    service:
+      namespace: default
+      name: akv2k8s-envinjector
+      path: /pods
+      port: 443
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lSQUtkaXhmdGFSRmtKWGpod2I1amZ1SzB3RFFZSktvWklodmNOQVFFTEJRQXcKRlRFVE1CRUdBMVVFQXhNS2MzWmpMV05oZEMxallUQWVGdzB5TVRBNE1UTXhORFV6TURaYUZ3MHpNVEE0TVRFeApORFV6TURaYU1CVXhFekFSQmdOVkJBTVRDbk4yWXkxallYUXRZMkV3Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBCkE0SUJEd0F3Z2dFS0FvSUJBUUNyaGhzK1ByTW9rT3oxYVBoMWpQaHJLbkRKbUE2UFlFWlpOd0lMRmo5dlVEMDMKMXJsWnRYTUpaclFqaU5JdVdFTk1JRVdpT2VtTnZnRkNJa2ZPZ1lMUEZzdk1QK1dnL3E1QkxWSnBXenRmMThJZwp6S0QyaTRHd21OSWRuSWFLdnc4bis4dVdnNThhdktDNFZmU2o3RUlGeE1DTmt3QzRtek1lTVZodTdZdE1zVjFGCm9YbGFwVGhLNklhSitKUlhMaGZSTnY4ZWo0RDJYenJtZk81TWwvMjZhU21tTS9Qeml5VU9JZm1uclNMcndvYngKaitERS92U2pEa2kybnNHaTU3cDE4QVVVL284b1FEZ3hEZVV0OVVyUUxYQUNGWjFDbFV5RDhXbmJ2TXNBNUJJRwpmWDBEeldoaTRNMUE5Y0xPQWl2VW9rSU5BTjhRMVc3RytWQS9HRHozQWdNQkFBR2pZVEJmTUE0R0ExVWREd0VCCi93UUVBd0lDcERBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SXdEd1lEVlIwVEFRSC8KQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVVG43eWx6OE56Z1FCZlIzbjZvVG5mYng3MW5Jd0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBSk51OWZHQmJVVGhGNW1uSzJHZGpSZVp1cTNOdllMZVBaUWFpZ2ZyMXJGK2gzT1hyejU1CjZOZkdGRGJNMVYrWmxJNDV1YUQzTWtSTFlJb0tzVVRabXFlRVlkMWNidlBQUzFMSERPMTVWdytFbU1oN0t3amgKb2k4VkRkRTZEYU9sMjQwSU9Bc3VTa3RvaG9RNTlHdjc0UHFnWU43ZmtvNEw5TUR2TXhuZzdldy9pOVpzaWRqUgozUm1IZWpmbWNILy9oaFExRWQ5ZmlnVExLeDlMZUtVRnlBT0pRdG82V3FuRnpsNGNOZkNYYjdIQ3lEUG8xTktSClZkTEdpaWJ5SkZlM1lPWm1tc0R0ZlNhcnB3dHE4YmFwbE9rS3VJZ3ZyM0FhNkJqSzF1WmVuSnhWVm0waTlzNDYKN2JmSTZ4d0w1aDdtekFSRHdDbUYwQkthUHR6bUdhZ3pvNlU9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  rules:
+  - operations:
+    - CREATE
+    apiGroups:
+    - "*"
+    apiVersions:
+    - "*"
+    resources:
+    - pods
+  failurePolicy: Fail
+  namespaceSelector:
+    matchLabels:
+      azure-key-vault-env-injection: enabled
+    matchExpressions:
+
+    - key: name
+      operator: NotIn
+      values:
+      - kube-system
+    - key: name
+      operator: NotIn
+      values:
+      - default
+  sideEffects: NoneOnDryRun

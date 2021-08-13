@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: akv2k8s-envinjector
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: akv2k8s
+      app.kubernetes.io/instance: akv2k8s
+      app.kubernetes.io/component: akv2k8s-webhook
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akv2k8s
+        app.kubernetes.io/instance: akv2k8s
+        app.kubernetes.io/component: akv2k8s-webhook
+      annotations:
+        checksum/config: f61a132b358c1370278f3b1652e4fdef8b137985084a09f14539bb510558e904
+    spec:
+      serviceAccountName: akv2k8s-envinjector
+      containers:
+        - name: webhook
+          image: "spvest/azure-keyvault-webhook:1.3.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--cloudconfig=/etc/kubernetes/azure.json"
+            - "--version=1.3.0"
+            - "--versionenvimage=1.3.0"
+            - "--v=2"
+            - "--logging-format=text"
+          env:
+          - name: HTTP_PORT
+            value: "8080"
+          - name: HTTP_PORT_EXTERNAL
+            value: "80"
+          - name: TLS_PORT
+            value: "8443"
+          - name: TLS_PORT_EXTERNAL
+            value: "443"
+          - name: MTLS_PORT
+            value: "9443"
+          - name: MTLS_PORT_EXTERNAL
+            value: "9443"
+          - name: MTLS_PORT
+            value: "9443"
+          - name: TLS_CERT_DIR
+            value: /var/serving-cert
+          - name: CA_CERT_DIR
+            value: /var/ca-cert
+          - name: ENV_INJECTOR_EXEC_DIR
+            value: /azure-keyvault/
+          - name: WEBHOOK_AUTH_SERVICE
+            value: akv2k8s-envinjector
+          - name: AUTH_TYPE
+            value: azureCloudConfig
+          - name: USE_AUTH_SERVICE
+            value: "true"
+          - name: AZUREKEYVAULT_ENV_IMAGE
+            value: spvest/azure-keyvault-env:1.3.0
+          - name: DOCKER_IMAGE_INSPECTION_TIMEOUT
+            value: "20"
+          - name: METRICS_ENABLED
+            value: "false"
+          ports:
+          - name: webhook-tls
+            containerPort: 8443
+          - name: http
+            containerPort: 8080
+          - name: auth-tls
+            containerPort: 9443
+          readinessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /healthz
+              port: 8443
+          volumeMounts:
+          - mountPath: /var/serving-cert
+            name: serving-cert
+          - mountPath: /var/ca-cert
+            name: ca-cert
+          - mountPath: "/etc/kubernetes/azure.json"
+            name: azureconf
+            readOnly: true
+          securityContext:
+
+            allowPrivilegeEscalation: true
+      volumes:
+      - name: serving-cert
+        secret:
+          defaultMode: 420
+          secretName: akv2k8s-envinjector-tls
+      - name: ca-cert
+        secret:
+          defaultMode: 420
+          secretName: akv2k8s-envinjector-ca
+      - name: azureconf
+        hostPath:
+          path: "/etc/kubernetes/azure.json"
+          type: File

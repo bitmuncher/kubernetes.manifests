@@ -1,0 +1,15 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: akv2k8s-envinjector
+  namespace: akv2k8s
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: akv2k8s
+      app.kubernetes.io/instance: akv2k8s
+      app.kubernetes.io/component: akv2k8s-webhook

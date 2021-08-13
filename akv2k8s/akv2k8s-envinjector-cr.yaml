@@ -1,0 +1,37 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: akv2k8s-envinjector
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets # in order to create secret for client cert
+  verbs:
+  - create
+  - update
+  - get
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - namespaces # in order to authorize incoming auth requests
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts # in order to read
+  verbs:
+  - get

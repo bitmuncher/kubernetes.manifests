@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: akv2k8s-envinjector-sa
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+subjects:
+- kind: ServiceAccount
+  namespace: akv2k8s
+  name: akv2k8s-envinjector
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: akv2k8s-envinjector

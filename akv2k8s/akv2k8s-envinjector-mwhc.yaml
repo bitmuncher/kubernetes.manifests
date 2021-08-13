@@ -1,0 +1,44 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: akv2k8s-envinjector
+  namespace: default
+  labels:
+    app.kubernetes.io/name: akv2k8s
+    app.kubernetes.io/instance: akv2k8s
+    app.kubernetes.io/managed-by: Helm
+    helm.sh/chart: akv2k8s-2.1.0
+webhooks:
+- name: pods.env-injector.admission.spv.no
+  admissionReviewVersions: ["v1beta1"]
+  clientConfig:
+    service:
+      namespace: default
+      name: akv2k8s-envinjector
+      path: /pods
+      port: 443
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lSQUtkaXhmdGFSRmtKWGpod2I1amZ1SzB3RFFZSktvWklodmNOQVFFTEJRQXcKRlRFVE1CRUdBMVVFQXhNS2MzWmpMV05oZEMxallUQWVGdzB5TVRBNE1UTXhORFV6TURaYUZ3MHpNVEE0TVRFeApORFV6TURaYU1CVXhFekFSQmdOVkJBTVRDbk4yWXkxallYUXRZMkV3Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBCkE0SUJEd0F3Z2dFS0FvSUJBUUNyaGhzK1ByTW9rT3oxYVBoMWpQaHJLbkRKbUE2UFlFWlpOd0lMRmo5dlVEMDMKMXJsWnRYTUpaclFqaU5JdVdFTk1JRVdpT2VtTnZnRkNJa2ZPZ1lMUEZzdk1QK1dnL3E1QkxWSnBXenRmMThJZwp6S0QyaTRHd21OSWRuSWFLdnc4bis4dVdnNThhdktDNFZmU2o3RUlGeE1DTmt3QzRtek1lTVZodTdZdE1zVjFGCm9YbGFwVGhLNklhSitKUlhMaGZSTnY4ZWo0RDJYenJtZk81TWwvMjZhU21tTS9Qeml5VU9JZm1uclNMcndvYngKaitERS92U2pEa2kybnNHaTU3cDE4QVVVL284b1FEZ3hEZVV0OVVyUUxYQUNGWjFDbFV5RDhXbmJ2TXNBNUJJRwpmWDBEeldoaTRNMUE5Y0xPQWl2VW9rSU5BTjhRMVc3RytWQS9HRHozQWdNQkFBR2pZVEJmTUE0R0ExVWREd0VCCi93UUVBd0lDcERBZEJnTlZIU1VFRmpBVUJnZ3JCZ0VGQlFjREFRWUlLd1lCQlFVSEF3SXdEd1lEVlIwVEFRSC8KQkFVd0F3RUIvekFkQmdOVkhRNEVGZ1FVVG43eWx6OE56Z1FCZlIzbjZvVG5mYng3MW5Jd0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBSk51OWZHQmJVVGhGNW1uSzJHZGpSZVp1cTNOdllMZVBaUWFpZ2ZyMXJGK2gzT1hyejU1CjZOZkdGRGJNMVYrWmxJNDV1YUQzTWtSTFlJb0tzVVRabXFlRVlkMWNidlBQUzFMSERPMTVWdytFbU1oN0t3amgKb2k4VkRkRTZEYU9sMjQwSU9Bc3VTa3RvaG9RNTlHdjc0UHFnWU43ZmtvNEw5TUR2TXhuZzdldy9pOVpzaWRqUgozUm1IZWpmbWNILy9oaFExRWQ5ZmlnVExLeDlMZUtVRnlBT0pRdG82V3FuRnpsNGNOZkNYYjdIQ3lEUG8xTktSClZkTEdpaWJ5SkZlM1lPWm1tc0R0ZlNhcnB3dHE4YmFwbE9rS3VJZ3ZyM0FhNkJqSzF1WmVuSnhWVm0waTlzNDYKN2JmSTZ4d0w1aDdtekFSRHdDbUYwQkthUHR6bUdhZ3pvNlU9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  rules:
+  - operations:
+    - CREATE
+    apiGroups:
+    - "*"
+    apiVersions:
+    - "*"
+    resources:
+    - pods
+  failurePolicy: Fail
+  namespaceSelector:
+    matchLabels:
+      azure-key-vault-env-injection: enabled
+    matchExpressions:
+
+    - key: name
+      operator: NotIn
+      values:
+      - kube-system
+    - key: name
+      operator: NotIn
+      values:
+      - default
+  sideEffects: NoneOnDryRun
