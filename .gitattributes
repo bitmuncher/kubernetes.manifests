@@ -1,0 +1,1 @@
+nginx-ingress/nginx-ingress-secret_default_tls.yaml filter=git-crypt diff=git-crypt
