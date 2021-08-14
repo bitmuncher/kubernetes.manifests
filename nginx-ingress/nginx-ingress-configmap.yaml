@@ -1,0 +1,17 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-config
+  namespace: nginx-ingress
+data:
+  proxy-connect-timeout: "10"
+  proxy-read-timeout: "120"
+  proxy-send-timeout: "120"
+  max-worker-connections: "1024"
+  ssl-protocols: "TLSv1.3"
+  worker-processes: "2"
+  ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
+  use-gzip: "true"
+  use-geoip: "false"
+  block-user-agents: "^Java,IDBot,id-search,ConveraCrawler,libwww,lwp-trivial,curl,PHP/,GT:WWW,urllib,Snoopy,MFC_Tear_Sample,HTTP::Lite,PHPCrawl,URI::Fetch,Zend_Http_Client,PECL::HTTP,panscient.com,Bork-edition,Fetch API Request,PleaseCrawl,layeredtech.com,WEP Search,Wells Search II,Missigua Locator,ISC Systems iRc Search 2.1,Microsoft URL Control,Indy Library,8484 Boston Project v 1.0,Atomic_Email_Hunter/4.0,atSpider/1.0,autoemailspider,China Local Browse 2.6,ContactBot/0.2,ContentSmartz,DataCha0s/2.0,DBrowse,Demo Bot,DSurf15a,EBrowse,Educate Search VxB,EmailSiphon,EmailWolf 1.00,ExtractorPro,Franklin Locator 1.8,FSurf15a 01,Full Web Bot 0416B,Full Web Bot 0516B,Full Web Bot 2816B,Guestbook Auto Submitter,Industry Program 1.0.x,ISC Systems iRc Search 2.1,IUPUI Research Bot v 1.9a,LARBIN-EXPERIMENTAL (efp@gmx.net),LetsCrawl.com/1.0 +http://letscrawl.com/,Lincoln State Web Browser,LMQueueBot/0.2,LWP::Simple,Mac Finder 1.0.xx,MFC Foundation Class Library 4.0,Microsoft URL Control - 6.00.8xxx,Missauga Locate 1.0.0,Missigua Locator 1.9,Missouri College Browse,Mizzu Labs 2.2,Mo College 1.9,Mozilla/2.0 (compatible; NEWT ActiveX; Win32),Mozilla/3.0 (compatible; Indy Library),Mozilla/4.0 (compatible; Advanced Email Extractor v2.xx),Mozilla/4.0 (compatible; Iplexx Spider/1.0 http://www.iplexx.at),Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt; DTS Agent,Mozilla/4.0 efp@gmx.net,Mozilla/5.0 (Version: xxxx Type:xx),MVAClient,NameOfAgent (CMS Spider),NASA Search 1.0,Nsauditor/1.x,PBrowse 1.4b,PEval 1.4b,Poirot,Port Huron Labs,Production Bot 0116B,Production Bot 2016B,roduction Bot DOT 3016B,Program Shareware 1.0.2,PSurf15a,psycheclone,RSurf15a,searchbot admin@google.com,ShablastBot 1.0,snap.com beta crawler v0,Snapbot/1.0,sogou develop spider,Sogou Orion spider/3.0(+http://www.sogou.com/docs/help/webmasters.htm#07),sogou spider,Sogou web spider/3.0(+http://www.sogou.com/docs/help/webmasters.htm#07),sohu agent,SSurf15a,TSurf15a,Under the Rainbow 2.2,User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1),VadixBot,WebVulnCrawl.blogspot.com/1.0 libwww-perl/5.803,Wells Search II,WEP Search 00,Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E)"
+  default-type: "text/html"
