@@ -1,0 +1,8 @@
+repos:
+  - repo: https://github.com/bitmuncher/kubernetes.manifests
+    rev: main
+    hooks:
+      - id: k8smanifests
+        language_version: yaml
+        stages: [commit]
+
